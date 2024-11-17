@@ -1,0 +1,32 @@
+{
+    "name": "adepto/framework",
+    "description": "The Adepto Framework",
+    "keywords": [
+        "Framework",
+        "Adepto"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Hans Olivas",
+            "email": "hansolivas1@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^8.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Adepto\\": "src/"
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "phpstan/extension-installer": true
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
