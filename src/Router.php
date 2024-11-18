@@ -2,28 +2,17 @@
 
 namespace Adepto;
 
-enum HTTPMethods
-{
-    case GET;
-    case POST;
-    case UPDATE;
-    case DELETE;
-}
-
 class Router
 {
     private static $instance = null;
 
-    public $routes = [];
+    public array $routes = [];
 
     public function __construct()
     {
-        foreach (HTTPMethods::cases() as $method) {
-            $this->routes[$method->name] = [];
-        }
     }
 
-    public static function getInstance()
+    public static function getInstance(): Router
     {
         if (self::$instance == null) {
             self::$instance = new Router();
@@ -32,20 +21,47 @@ class Router
         return self::$instance;
     }
 
-    public function resolve($request)
+    /**
+     * Find the first route matching a given request.
+     */
+    public function matchRoute($request): Route | null
     {
-        $method = $request['REQUEST_METHOD'];
-        $uri = $request['REQUEST_URI'];
-        return $this->routes[$method][$uri];
+        $filtered = array_filter($this->routes, function ($route) use ($request) {
+            return $route->matches($request);
+        });
+
+        $route = array_values($filtered)[0];
+
+        if ($route->hasParameter()) {
+            $route->bindParameter($request);
+        }
+
+        return $route;
     }
 
-    public function get(string $route, callable $callback)
+    public function resolve($request): callable
     {
-        $this->routes['GET'][$route] = $callback;
+        return $this->matchRoute($request)->action;
     }
 
-    public function post(string $route, callable $callback)
+    public function createRoute(string $method, string $uri, callable $action): Route
     {
-        $this->routes['POST'][$route] = $callback;
+        return new Route($method, $uri, $action);
+    }
+
+    public function addRoute(string $method, string $uri, callable $action): void
+    {
+        $uri = '/' . trim($uri, '/');
+        $this->routes[] = $this->createRoute($method, $uri, $action);
+    }
+
+    public function get(string $route, callable $callback): void
+    {
+        $this->addRoute('GET', $route, $callback);
+    }
+
+    public function post(string $route, callable $callback): void
+    {
+        $this->addRoute('POST', $route, $callback);
     }
 }
