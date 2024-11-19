@@ -16,6 +16,9 @@
         "php": "^8.2"
     },
     "autoload": {
+        "files": [
+            "src/helpers.php"
+        ],
         "psr-4": {
             "Adepto\\": "src/"
         }
