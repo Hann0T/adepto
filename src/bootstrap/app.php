@@ -6,6 +6,10 @@ function bootstrapApp()
 {
     $router = Router::getInstance();
 
+    $router->get('/', function () {
+        return 'welcome home';
+    });
+
     $router->get('/hello', function () {
         return 'world';
     });
@@ -22,6 +26,10 @@ function bootstrapApp()
         return 'user with ID: ' . $id . ' With Posts';
     });
 
+    $router->get('/user/{id}/posts/{id}', function ($userId, $postId) {
+        return 'user with ID: ' . $userId . ' With Post with ID: ' . $postId;
+    });
+
     $router->post('/users', function () {
         return json_encode(['user' => ['name' => 'num 1']], true);
     });
@@ -30,7 +38,7 @@ function bootstrapApp()
         $callback = $router->resolve($_SERVER);
         echo $callback();
     } catch (\Throwable $e) {
-        printf($e);
+        dd($e);
         echo 505;
     }
 }
