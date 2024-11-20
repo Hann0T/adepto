@@ -22,13 +22,14 @@ class Route
 
         $uri = $request['REQUEST_URI'];
         $uri = '/' . trim($uri, '/');
+        $uri = preg_replace('#/+#', '/', $uri);
 
         if ($this->method !== $method) {
             return false;
         }
 
         if ($this->hasParameter()) {
-            // Split the registered uri by parameters.
+            // Split the registered uri by {parameters}.
             // We are splitting the registered URI to compare 
             // the length of its elements with the request URI.
             $registeredUri = preg_split("/\{([a-zA-Z]+)\}/", $this->uri, -1, PREG_SPLIT_DELIM_CAPTURE);
@@ -40,8 +41,9 @@ class Route
             $requestUri = preg_split('/(\/[^\/]+\/?|[^\/]+)/', $uri, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
             $requestUri = array_filter($requestUri, fn ($v) => trim($v));
 
-            // If the two arrays have the same length, we can conclude they are equal.
-            // Therefore it's a match.
+            // If the two arrays have the same length,
+            // we can conclude they are equal.
+            // Therefore it's a perfect match.
             return count($registeredUri) == count($requestUri);
         }
 
@@ -52,6 +54,7 @@ class Route
     {
         $uri = $request['REQUEST_URI'];
         $uri = '/' . trim($uri, '/');
+        $uri = preg_replace('#/+#', '/', $uri);
 
         // Split the request uri by '/[something]/'.
         $splitted = preg_split('/(\/[^\/]+\/?|[^\/]+)/', $uri, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
