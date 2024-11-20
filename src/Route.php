@@ -19,15 +19,30 @@ class Route
     public function matches($request): bool
     {
         $method = $request['REQUEST_METHOD'];
+
         $uri = $request['REQUEST_URI'];
+        $uri = '/' . trim($uri, '/');
 
         if ($this->method !== $method) {
             return false;
         }
 
         if ($this->hasParameter()) {
-            $str = preg_replace("/\{([a-zA-Z]+)\}/", "", $this->uri);
-            return str_contains($uri, $str);
+            // Split the registered uri by parameters.
+            // We are splitting the registered URI to compare 
+            // the length of its elements with the request URI.
+            $registeredUri = preg_split("/\{([a-zA-Z]+)\}/", $this->uri, -1, PREG_SPLIT_DELIM_CAPTURE);
+            $registeredUri = array_filter($registeredUri, fn ($v) => trim($v));
+
+            // Split the request uri by '/[something]/'.
+            // We are splitting the request URI to compare 
+            // the length of its elements with the registered URI.
+            $requestUri = preg_split('/(\/[^\/]+\/?|[^\/]+)/', $uri, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+            $requestUri = array_filter($requestUri, fn ($v) => trim($v));
+
+            // If the two arrays have the same length, we can conclude they are equal.
+            // Therefore it's a match.
+            return count($registeredUri) == count($requestUri);
         }
 
         return $this->uri === $uri;
@@ -35,10 +50,17 @@ class Route
 
     public function bindParameter($request)
     {
-        $str = preg_replace("/\{([a-zA-Z]+)\}/", "", $this->uri);
         $uri = $request['REQUEST_URI'];
-        $str = str_replace($str, '', $uri);
+        $uri = '/' . trim($uri, '/');
+
+        // Split the request uri by '/[something]/'.
+        $splitted = preg_split('/(\/[^\/]+\/?|[^\/]+)/', $uri, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+
+        // We are applying a filter to extract the arguments,
+        // as these strings do not contain any '/'.
+        $args = array_filter($splitted, fn ($v) => strpos($v, '/') === false);
+
         $action = $this->action;
-        $this->action = fn () => $action($str);
+        $this->action = fn () => $action(...$args);
     }
 }
