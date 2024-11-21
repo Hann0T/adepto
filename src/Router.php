@@ -4,22 +4,7 @@ namespace Adepto;
 
 class Router
 {
-    private static $instance = null;
-
-    public array $routes = [];
-
-    public function __construct()
-    {
-    }
-
-    public static function getInstance(): Router
-    {
-        if (self::$instance == null) {
-            self::$instance = new Router();
-        }
-
-        return self::$instance;
-    }
+    private array $routes = [];
 
     /**
      * Find the first route matching a given request.
@@ -63,5 +48,10 @@ class Router
     public function post(string $route, callable $callback): void
     {
         $this->addRoute('POST', $route, $callback);
+    }
+
+    public function getRoutes(): array
+    {
+        return $this->routes;
     }
 }

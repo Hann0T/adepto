@@ -1,41 +1,47 @@
 <?php
 
-use Adepto\Router;
+use Adepto\Facades\Router;
+use Adepto\Foundation\Application;
 
 function bootstrapApp()
 {
-    $router = Router::getInstance();
-
-    $router->get('/', function () {
-        return 'welcome home';
-    });
-
-    $router->get('/hello', function () {
-        return 'world';
-    });
-
-    $router->get('/hello2', function () {
-        return 'world 2';
-    });
-
-    $router->get('/user/{id}', function ($id) {
-        return 'user with ID: ' . $id;
-    });
-
-    $router->get('/user/{id}/posts', function ($id) {
-        return 'user with ID: ' . $id . ' With Posts';
-    });
-
-    $router->get('/user/{id}/posts/{id}', function ($userId, $postId) {
-        return 'user with ID: ' . $userId . ' With Post with ID: ' . $postId;
-    });
-
-    $router->post('/users', function () {
-        return json_encode(['user' => ['name' => 'num 1']], true);
-    });
-
     try {
-        $callback = $router->resolve($_SERVER);
+        $app = new Application();
+        $app->bootstrap();
+
+        Router::get('/asdf', function () {
+            return 'jeje';
+        });
+
+        Router::get('/', function () {
+            return 'welcome home';
+        });
+
+        Router::get('/hello', function () {
+            return 'world';
+        });
+
+        Router::get('/hello2', function () {
+            return 'world 2';
+        });
+
+        Router::get('/user/{id}', function ($id) {
+            return 'user with ID: ' . $id;
+        });
+
+        Router::get('/user/{id}/posts', function ($id) {
+            return 'user with ID: ' . $id . ' With Posts';
+        });
+
+        Router::get('/user/{id}/posts/{id}', function ($userId, $postId) {
+            return 'user with ID: ' . $userId . ' With Post with ID: ' . $postId;
+        });
+
+        Router::post('/users', function () {
+            return json_encode(['user' => ['name' => 'num 1']], true);
+        });
+
+        $callback = Router::resolve($_SERVER);
         echo $callback();
     } catch (\Throwable $e) {
         dd($e);
