@@ -17,6 +17,10 @@ class Router
 
         $route = array_values($filtered)[0];
 
+        if (!$route) {
+            throw new \Error("404 Route does not exists.");
+        }
+
         if ($route->hasParameter()) {
             $route->bindParameter($request);
         }
