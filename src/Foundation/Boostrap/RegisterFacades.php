@@ -6,8 +6,9 @@ use Adepto\Foundation\Application;
 
 class RegisterFacades
 {
-    private $facades = [
+    private array $facades = [
         \Adepto\Facades\Router::class => \Adepto\Router::class,
+        \Adepto\Facades\View::class => \Adepto\View::class,
     ];
 
     public function boostrap(Application $app)

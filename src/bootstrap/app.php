@@ -9,12 +9,8 @@ function bootstrapApp()
         $app = new Application();
         $app->bootstrap();
 
-        Router::get('/asdf', function () {
-            return 'jeje';
-        });
-
         Router::get('/', function () {
-            return 'welcome home';
+            return view('home');
         });
 
         Router::get('/hello', function () {

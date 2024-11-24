@@ -1,4 +1,7 @@
 <?php
+
+use Adepto\Facades\View;
+
 if (!function_exists('dd')) {
     function dd(...$args)
     {
@@ -6,5 +9,12 @@ if (!function_exists('dd')) {
         call_user_func_array('var_dump', $args);
         echo '</pre>';
         die();
+    }
+}
+
+if (!function_exists('view')) {
+    function view($view)
+    {
+        return View::render($view);
     }
 }
