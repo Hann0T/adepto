@@ -13,8 +13,8 @@ if (!function_exists('dd')) {
 }
 
 if (!function_exists('view')) {
-    function view($view)
+    function view(string $view, array $params = [])
     {
-        return View::render($view);
+        return View::render($view, $params);
     }
 }

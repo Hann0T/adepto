@@ -10,7 +10,7 @@ function bootstrapApp()
         $app->bootstrap();
 
         Router::get('/', function () {
-            return view('home');
+            return view('home', ['name' => 'hans']);
         });
 
         Router::get('/hello', function () {
