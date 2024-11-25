@@ -30,3 +30,16 @@ if (!function_exists('app')) {
         return Application::getInstance();
     }
 }
+
+if (!function_exists('request')) {
+    function request(string $key = '')
+    {
+        $request = Application::getInstance()->make('request');
+
+        if ($key) {
+            return $request->query($key);
+        }
+
+        return $request;
+    }
+}
