@@ -2,42 +2,22 @@
 
 use Adepto\Facades\Router;
 use Adepto\Foundation\Application;
+use Adepto\Http\Request;
 
 function bootstrapApp()
 {
     try {
-        $app = new Application();
+        $app = Application::getInstance();
         $app->bootstrap();
 
-        Router::get('/', function () {
-            return view('home', ['name' => 'hans']);
-        });
+        $request = Request::capture();
+        $app->handleRequest($request);
 
-        Router::get('/hello', function () {
-            return 'world';
-        });
+        // other way to load the web.php?
+        // https://github.com/laravel/framework/blob/11.x/src/Illuminate/Foundation/Configuration/ApplicationBuilder.php#L150
+        include_once __DIR__ . '/../routes/web.php';
 
-        Router::get('/hello2', function () {
-            return 'world 2';
-        });
-
-        Router::get('/user/{id}', function ($id) {
-            return 'user with ID: ' . $id;
-        });
-
-        Router::get('/user/{id}/posts', function ($id) {
-            return 'user with ID: ' . $id . ' With Posts';
-        });
-
-        Router::get('/user/{id}/posts/{id}', function ($userId, $postId) {
-            return 'user with ID: ' . $userId . ' With Post with ID: ' . $postId;
-        });
-
-        Router::post('/users', function () {
-            return json_encode(['user' => ['name' => 'num 1']], true);
-        });
-
-        $callback = Router::resolve($_SERVER);
+        $callback = Router::resolve($request);
         echo $callback();
     } catch (\Throwable $e) {
         dd($e);

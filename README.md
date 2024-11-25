@@ -1,9 +1,9 @@
 # STEPS
 
-- [ ] HTTP Request Handling
+- [X] HTTP Request Handling
 - [ ] Controller Layer
 - [ ] Middleware
-- [ ] Views and Templating
+- [X] Views and Templating
 - [ ] Database Integration
 - [ ] Model Layer
 - [ ] ORM
@@ -14,6 +14,6 @@
 - [ ] Security Features
 - [ ] Logging and Debugging
 - [ ] CLI Tools
-- [ ] Service Container
+- [~] Service Container
 - [ ] Service Provider
 - [ ] Testing
