@@ -4,6 +4,7 @@ namespace Adepto\Foundation\Boostrap;
 
 use Adepto\Foundation\Application;
 
+// change this to a service provider or something like that
 class RegisterFacades
 {
     private array $facades = [
@@ -15,7 +16,10 @@ class RegisterFacades
     {
         foreach ($this->facades as $facade => $concrete) {
             $facade::setApplication($app);
-            $app->bind($facade::getFacadeAccessor(), function () use ($concrete) {
+
+            // not sure if all facades should be singletons
+            // not even sure if Router should be singleton
+            $app->singleton($facade::getFacadeAccessor(), function () use ($concrete) {
                 return new $concrete;
             });
         }

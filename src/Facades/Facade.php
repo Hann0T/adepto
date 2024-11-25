@@ -30,7 +30,7 @@ class Facade
 
     public static function resolveInstance(string $abstract)
     {
-        return static::$app->getConcrete($abstract);
+        return static::$app->make($abstract);
     }
 
     public static function getFacadeAccessor()
