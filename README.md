@@ -14,6 +14,6 @@
 - [ ] Security Features
 - [ ] Logging and Debugging
 - [ ] CLI Tools
-- [~] Service Container
+- [ ] Service Container (some %)
 - [ ] Service Provider
 - [ ] Testing
