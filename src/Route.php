@@ -2,6 +2,8 @@
 
 namespace Adepto;
 
+use Adepto\Http\Request;
+
 class Route
 {
     public function __construct(
@@ -9,6 +11,7 @@ class Route
         public $uri,
         public $action
     ) {
+        //
     }
 
     public function hasParameter(): bool
@@ -16,11 +19,11 @@ class Route
         return preg_match("/\{([a-zA-Z]+)\}/", $this->uri);
     }
 
-    public function matches($request): bool
+    public function matches(Request $request): bool
     {
-        $method = $request['REQUEST_METHOD'];
+        $method = $request->method();
+        $uri = $request->path();
 
-        $uri = $request['REQUEST_URI'];
         $uri = '/' . trim($uri, '/');
         $uri = preg_replace('#/+#', '/', $uri);
 
@@ -42,9 +45,9 @@ class Route
         return $this->uri === $uri;
     }
 
-    public function bindParameter($request)
+    public function bindParameter(Request $request)
     {
-        $uri = $request['REQUEST_URI'];
+        $uri = $request->path();
         $uri = '/' . trim($uri, '/');
         $uri = preg_replace('#/+#', '/', $uri);
 
