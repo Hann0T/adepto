@@ -1,6 +1,7 @@
 <?php
 
 use Adepto\Facades\View;
+use Adepto\Foundation\Application;
 
 if (!function_exists('dd')) {
     function dd(...$args)
@@ -16,5 +17,16 @@ if (!function_exists('view')) {
     function view(string $view, array $params = [])
     {
         return View::render($view, $params);
+    }
+}
+
+if (!function_exists('app')) {
+    function app(string $abstract = null, array $params = [])
+    {
+        if ($abstract) {
+            return Application::getInstance()->make($abstract, $params);
+        }
+
+        return Application::getInstance();
     }
 }

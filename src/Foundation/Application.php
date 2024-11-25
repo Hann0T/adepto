@@ -7,12 +7,19 @@ use Closure;
 
 class Application
 {
+    protected static $instance;
+
     protected array $bindings = [];
     protected array $instances = [];
 
     protected array $boostrapers = [
         \Adepto\Foundation\Boostrap\RegisterFacades::class,
     ];
+
+    public static function getInstance(): Application
+    {
+        return static::$instance ??= new static;
+    }
 
     // https://github.com/laravel/framework/blob/abc1faa60887cb54b4050277e07f0e4f25244a5f/src/Illuminate/Foundation/Application.php#L1590
     // In laravel you need to have bindings, then you can Alias multiple strings or name class 
