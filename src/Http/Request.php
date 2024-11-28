@@ -18,8 +18,8 @@ class Request
 
     public static function capture(): Request
     {
-        $cookies = static::formatCookies($_SERVER['HTTP_COOKIE'] ?? '');
-        $queryParameters = static::formatQueryParameters($_SERVER['REQUEST_URI'] ?? '');
+        $cookies = $_COOKIE;
+        $queryParameters = $_GET;
         $headers = [
             'host' => $_SERVER['HTTP_HOST'],
             'user-agent' => $_SERVER['HTTP_USER_AGENT'],
@@ -86,39 +86,5 @@ class Request
     public function method()
     {
         return $this->method;
-    }
-
-    protected static function formatCookies(string $cookies): array
-    {
-        $cookies = urldecode($cookies);
-        $cookies = explode(';', $cookies);
-        return static::formatKeyValueArray($cookies);
-    }
-
-    protected static function formatQueryParameters(string $query): array
-    {
-        $query = urldecode($query);
-        // only the first match of the str(?)
-        $query = preg_replace("/^(\/[\?]?)/", "", $query);
-        $query = explode("&", $query);
-        return static::formatKeyValueArray($query);
-    }
-
-    protected static function formatKeyValueArray(array $pairs): array
-    {
-        $arr = [];
-
-        foreach ($pairs as $pair) {
-            $pair = explode("=", $pair);
-            $pair = array_map(fn ($pair) => trim($pair), $pair);
-            $key = $pair[0];
-            if (!$key) {
-                continue;
-            }
-            $value = $pair[1] ?? '';
-            $arr[$key] = $value;
-        }
-
-        return $arr;
     }
 }
