@@ -3,6 +3,7 @@
 namespace Adepto;
 
 use Adepto\Http\Request;
+use Adepto\Http\Response;
 
 class Router
 {
@@ -11,7 +12,7 @@ class Router
     /**
      * Find the first route matching a given request.
      */
-    public function matchRoute(Request $request): Route | null
+    public function matchRoute(Request $request): Route
     {
         $filtered = array_filter($this->routes, function ($route) use ($request) {
             return $route->matches($request);
@@ -30,9 +31,16 @@ class Router
         return $route;
     }
 
-    public function resolve(Request $request): callable
+    public function resolve(Request $request): Response
     {
-        return $this->matchRoute($request)->action;
+        $action = $this->matchRoute($request)?->action;
+        $response = $action();
+
+        if ($response instanceof Response) {
+            return $response;
+        }
+
+        return new Response(content: $response);
     }
 
     public function createRoute(string $method, string $uri, callable $action): Route

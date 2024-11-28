@@ -7,9 +7,9 @@ use Adepto\Http\Request;
 class Route
 {
     public function __construct(
-        public $method,
-        public $uri,
-        public $action
+        public string $method,
+        public string $uri,
+        public mixed $action
     ) {
         //
     }

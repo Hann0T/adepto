@@ -14,7 +14,7 @@ if (!function_exists('dd')) {
 }
 
 if (!function_exists('view')) {
-    function view(string $view, array $params = [])
+    function view(string $view, array $params = []): string
     {
         return View::render($view, $params);
     }
@@ -41,5 +41,12 @@ if (!function_exists('request')) {
         }
 
         return $request;
+    }
+}
+
+if (!function_exists('response')) {
+    function response(string $content = '', int $status = 200, array $headers = []): \Adepto\Http\Response
+    {
+        return new \Adepto\Http\Response($content ?? '', $status, $headers);
     }
 }

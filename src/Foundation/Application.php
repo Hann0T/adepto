@@ -3,6 +3,7 @@
 namespace Adepto\Foundation;
 
 use Adepto\Http\Request;
+use Adepto\Http\Response;
 use Closure;
 
 class Application
@@ -67,7 +68,7 @@ class Application
 
         $isSingleton = $this->bindings[$abstract]['singleton'];
 
-        if (!$this->instances[$abstract]) {
+        if (!isset($this->instances[$abstract])) {
             $instance = $this->bindings[$abstract]['concrete']();
             if ($isSingleton) {
                 $this->instances[$abstract] = $instance;
@@ -81,5 +82,11 @@ class Application
     public function getBindings(): array
     {
         return $this->bindings;
+    }
+
+    public function terminate(Response $response)
+    {
+        print($response->getContent());
+        exit();
     }
 }

@@ -17,8 +17,8 @@ function bootstrapApp()
         // https://github.com/laravel/framework/blob/11.x/src/Illuminate/Foundation/Configuration/ApplicationBuilder.php#L150
         include_once __DIR__ . '/../routes/web.php';
 
-        $callback = Router::resolve($request);
-        echo $callback();
+        $response = Router::resolve($request)->prepare();
+        $app->terminate($response);
     } catch (\Throwable $e) {
         dd($e);
         echo 505;

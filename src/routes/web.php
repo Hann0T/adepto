@@ -27,5 +27,5 @@ Router::get('/user/{id}/posts/{id}', function ($userId, $postId) {
 });
 
 Router::post('/users', function () {
-    return json_encode(['user' => ['name' => 'num 1']], true);
+    return response()->json(['user' => ['name' => 'num 1']], 200);
 });
