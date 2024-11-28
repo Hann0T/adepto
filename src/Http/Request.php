@@ -55,7 +55,7 @@ class Request
 
     public function query(string $key)
     {
-        return $this->query[$key];
+        return isset($this->query[$key]) ? $this->query[$key] : '';
     }
 
     public function all()
