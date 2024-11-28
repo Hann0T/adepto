@@ -58,6 +58,11 @@ class Request
         return $this->query[$key];
     }
 
+    public function all()
+    {
+        return $this->query;
+    }
+
     public function header(string $key)
     {
         return $this->headers[$key];
