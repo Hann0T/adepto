@@ -3,6 +3,10 @@
 use Adepto\Facades\Router;
 
 Router::get('/', function () {
+    return response()->redirect('/welcome');
+});
+
+Router::get('/welcome', function () {
     return view('home', ['name' => 'hans']);
 });
 
