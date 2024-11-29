@@ -57,7 +57,18 @@ class Application
 
     public function make(string $abstract, array $params = []): mixed
     {
-        return $this->getConcrete($abstract);
+        return $this->resolve($abstract, $params);
+    }
+
+    public function resolve(string $abstract, array $params = [])
+    {
+        $concrete = $this->getConcrete($abstract);
+
+        if (!is_string($concrete)) {
+            return $concrete;
+        }
+
+        return new $concrete;
     }
 
     public function getConcrete(string $abstract): mixed
@@ -76,6 +87,7 @@ class Application
         } else {
             $instance = $this->instances[$abstract];
         }
+
         return $instance;
     }
 

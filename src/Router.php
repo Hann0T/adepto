@@ -24,17 +24,12 @@ class Router
             throw new \Error("404 Route does not exists.");
         }
 
-        if ($route->hasParameter()) {
-            $route->bindParameter($request);
-        }
-
         return $route;
     }
 
     public function resolve(Request $request): Response
     {
-        $action = $this->matchRoute($request)?->action;
-        $response = $action();
+        $response = $this->matchRoute($request)?->run($request);
 
         if ($response instanceof Response) {
             return $response;
@@ -43,23 +38,23 @@ class Router
         return new Response(content: $response);
     }
 
-    public function createRoute(string $method, string $uri, callable $action): Route
+    public function createRoute(string $method, string $uri, mixed $action): Route
     {
         return new Route($method, $uri, $action);
     }
 
-    public function addRoute(string $method, string $uri, callable $action): void
+    public function addRoute(string $method, string $uri, mixed $action): void
     {
         $uri = '/' . trim($uri, '/');
         $this->routes[] = $this->createRoute($method, $uri, $action);
     }
 
-    public function get(string $route, callable $callback): void
+    public function get(string $route, mixed $callback): void
     {
         $this->addRoute('GET', $route, $callback);
     }
 
-    public function post(string $route, callable $callback): void
+    public function post(string $route, mixed $callback): void
     {
         $this->addRoute('POST', $route, $callback);
     }

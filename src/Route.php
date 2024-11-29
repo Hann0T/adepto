@@ -45,7 +45,7 @@ class Route
         return $this->uri === $uri;
     }
 
-    public function bindParameter(Request $request)
+    public function getUriParameters(Request $request): array
     {
         $uri = $request->path();
         $uri = '/' . trim($uri, '/');
@@ -56,9 +56,55 @@ class Route
 
         // We are applying a filter to extract the arguments,
         // as these strings do not contain any '/'.
-        $args = array_filter($splitted, fn ($v) => strpos($v, '/') === false);
+        $params = array_filter($splitted, fn ($v) => strpos($v, '/') === false);
+
+        return $params;
+    }
+
+    public function run(Request $request): mixed
+    {
+        if ($this->hasParameter()) {
+            $params = $this->getUriParameters($request);
+        }
+
+        if (!($this->action instanceof \Closure)) {
+            return $this->runController($params ?? []);
+        }
 
         $action = $this->action;
-        $this->action = fn () => $action(...$args);
+        if ($params) {
+            return $action(...$params);
+        }
+
+        return $action();
+    }
+
+    public function runController(array $params = [])
+    {
+        if (!is_array($this->action)) {
+            throw new \Error("Invalid route action: [{$this->action}].");
+        }
+
+        if (!isset($this->action[0])) {
+            throw new \Error("Route action is invalid.");
+        }
+
+        $class = $this->action[0];
+        if (!class_exists($class)) {
+            throw new \Error("Target class [{$class}] does not exist.");
+        }
+
+        $instance = app()->make($class);
+
+        if (!isset($this->action[1])) {
+            throw new \Error("Class [{$class}] invalid method.");
+        }
+
+        $method = $this->action[1];
+        if (!method_exists($instance, $method)) {
+            throw new \Error("Call to undefined method [{$class}::{$method}()].");
+        }
+
+        return call_user_func([$instance, $method], ...$params);
     }
 }
