@@ -67,44 +67,34 @@ class Route
             $params = $this->getUriParameters($request);
         }
 
-        if (!($this->action instanceof \Closure)) {
-            return $this->runController($params ?? []);
+        if ($this->action instanceof \Closure) {
+            return app()->call($this->action, $params ?? []);
         }
 
-        $action = $this->action;
-        if ($params) {
-            return $action(...$params);
+        if (is_array($this->action)) {
+            $callable = $this->action;
+        } else {
+            $callable = explode("@", $this->action);
         }
-
-        return $action();
+        $this->validateActionArray($callable);
+        $this->validateController($callable[0], $callable[1]);
+        return app()->call($callable, $params ?? []);
     }
 
-    public function runController(array $params = [])
+    public function validateController(string $class, string $method): void
     {
-        if (!is_array($this->action)) {
-            throw new \Error("Invalid route action: [{$this->action}].");
-        }
-
-        if (!isset($this->action[0])) {
-            throw new \Error("Route action is invalid.");
-        }
-
-        $class = $this->action[0];
         if (!class_exists($class)) {
             throw new \Error("Target class [{$class}] does not exist.");
         }
-
-        $instance = app()->make($class);
-
-        if (!isset($this->action[1])) {
-            throw new \Error("Class [{$class}] invalid method.");
-        }
-
-        $method = $this->action[1];
-        if (!method_exists($instance, $method)) {
+        if (!method_exists($class, $method)) {
             throw new \Error("Call to undefined method [{$class}::{$method}()].");
         }
+    }
 
-        return call_user_func([$instance, $method], ...$params);
+    public function validateActionArray(array $array): void
+    {
+        if (!isset($array[0]) || !isset($array[1])) {
+            throw new \Error("Route action is not supported.");
+        }
     }
 }

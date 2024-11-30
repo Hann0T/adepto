@@ -5,6 +5,10 @@ namespace Adepto\Foundation;
 use Adepto\Http\Request;
 use Adepto\Http\Response;
 use Closure;
+use ReflectionClass;
+use ReflectionFunction;
+use ReflectionFunctionAbstract;
+use ReflectionMethod;
 
 class Application
 {
@@ -44,7 +48,7 @@ class Application
         $this->bind('request', fn () => $request);
     }
 
-    public function singleton(string $abstract, Closure $concrete = null)
+    public function singleton(string $abstract, Closure $concrete)
     {
         $this->bind($abstract, $concrete, true);
     }
@@ -60,23 +64,54 @@ class Application
         return $this->resolve($abstract, $params);
     }
 
-    public function resolve(string $abstract, array $params = [])
+    /**
+     * Resolve a Closure|[class, method] with dependencies
+     */
+    public function call(Closure|array $abstract, array $params = []): mixed
     {
-        $concrete = $this->getConcrete($abstract);
+        if ($abstract instanceof Closure) {
+            $reflector = new ReflectionFunction($abstract);
+            $callback = $abstract;
+        } else {
+            $class = $abstract[0];
+            $method = $abstract[1];
+            $controller = $this->make($class);
+            $callback = [$controller, $method];
+            $reflector = new ReflectionMethod($class, $method);
+        }
 
+        $dependencies = $this->resolveCallableDependencies($reflector);
+        return call_user_func($callback, ...$dependencies, ...$params);
+    }
+
+    /**
+     * Get the concrete type from the bindings or 
+     * instantiate a concrete instance
+     */
+    protected function resolve(string $abstract, array $params = [])
+    {
+        // We try to get the concrete from the bindings
+        $concrete = $this->getConcreteFromBindings($abstract);
+
+        // If the concrete is no longer a string then we return the instance.
         if (!is_string($concrete)) {
             return $concrete;
         }
 
-        return new $concrete;
+        return $this->build($concrete);
     }
 
-    public function getConcrete(string $abstract): mixed
+    /**
+     * If the binding is registered then try to get the abstract 
+     * from the bindings or create a new instance.
+     */
+    protected function getConcreteFromBindings(string $abstract): mixed
     {
         if (!isset($this->bindings[$abstract])) {
             return $abstract;
         }
 
+        // call $this->make() for dependencies
         $isSingleton = $this->bindings[$abstract]['singleton'];
 
         if (!isset($this->instances[$abstract])) {
@@ -89,6 +124,52 @@ class Application
         }
 
         return $instance;
+    }
+
+    /**
+     * Instantiate a instance and resolve dependencies
+     */
+    protected function build(Closure | string $concrete): mixed
+    {
+        if (is_string($concrete)) {
+            if (!class_exists($concrete)) {
+                return $concrete;
+            }
+
+            $reflector = new ReflectionClass($concrete);
+            if (!$reflector->isInstantiable()) {
+                throw new \Error("Class [{$concrete}] is not instantiable.");
+            }
+
+            $constructor  = $reflector->getConstructor();
+            if (!$constructor) {
+                return new $concrete;
+            }
+
+            $params = [];
+
+            foreach ($constructor->getParameters() as $param) {
+                array_push($params, $this->make($param->getName()));
+            }
+
+            return $reflector->newInstance(...$params);
+        }
+
+        return $concrete;
+    }
+
+    protected function resolveCallableDependencies(ReflectionFunctionAbstract $reflector): mixed
+    {
+        $params = [];
+        foreach ($reflector->getParameters() as $param) {
+            $param = $this->make($param->getName());
+            if (is_scalar($param)) {
+                continue;
+            }
+            array_push($params, $param);
+        }
+
+        return $params;
     }
 
     public function getBindings(): array

@@ -2,11 +2,18 @@
 
 namespace Adepto;
 
+use Adepto\Http\Request;
+
 class UserController
 {
-    public function get($id)
+    public function get(Request $request, $id)
     {
-        return 'user with ID: ' . $id;
+        return  $request->method() . ' ' . 'user with ID: ' . $id;
+    }
+
+    public function show()
+    {
+        return 'all users';
     }
 
     public function post()
