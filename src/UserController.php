@@ -8,7 +8,7 @@ class UserController
 {
     public function get(Request $request, $id)
     {
-        return  $request->method() . ' ' . 'user with ID: ' . $id;
+        return "{$request->method()} - user with ID: {$id}";
     }
 
     public function show()
