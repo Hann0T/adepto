@@ -1,7 +1,7 @@
 # STEPS
 
 - [X] HTTP Request Handling
-- [ ] Controller Layer
+- [X] Controllers
 - [ ] Middleware
 - [X] Views and Templating
 - [ ] Database Integration
@@ -9,11 +9,9 @@
 - [ ] ORM
 - [ ] Validation
 - [ ] Configuration Managment
-- [ ] Error Handling
 - [ ] Session and Cookie Management
-- [ ] Security Features
 - [ ] Logging and Debugging
 - [ ] CLI Tools
 - [ ] Service Container (some %)
-- [ ] Service Provider
+- [ ] Service Provider (some %)
 - [ ] Testing
