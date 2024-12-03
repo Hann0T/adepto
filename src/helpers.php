@@ -50,3 +50,10 @@ if (!function_exists('response')) {
         return new \Adepto\Http\Response($content ?? '', $status, $headers);
     }
 }
+
+if (!function_exists('redirect')) {
+    function redirect(string $path, int $status = 301, array $headers = []): \Adepto\Http\Response
+    {
+        return (new \Adepto\Http\Response)->redirect($path, $status, $headers);
+    }
+}
