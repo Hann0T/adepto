@@ -1,5 +1,6 @@
 <?php
 
+use Adepto\AuthMiddleware;
 use Adepto\Facades\Router;
 use Adepto\Http\Request;
 use Adepto\UserController;
@@ -10,14 +11,14 @@ Router::get('/', function () {
 
 Router::get('/welcome', function () {
     return view('home', ['name' => 'hans']);
-});
+})->middleware([AuthMiddleware::class]);
 
 Router::get('/hello', function (Request $request) {
     return "{$request->method()} world";
 });
 
-Router::get('/hello2', function () {
-    return 'world 2';
+Router::get('/login', function () {
+    return 'login main page';
 });
 
 Router::get('/user/{id}', [UserController::class, 'get']);
