@@ -29,13 +29,32 @@ class Router
 
     public function resolve(Request $request): Response
     {
-        $response = $this->matchRoute($request)?->run($request);
+        $route = $this->matchRoute($request);
+        $middlewares = $route->middlewares();
 
-        if ($response instanceof Response) {
-            return $response;
+        $next = fn ($request) => $route?->run($request);
+        $response = $this->runMiddlewares($request, $middlewares, $next);
+        return $response;
+    }
+
+    protected function runMiddlewares(Request $request, array $middlewares, mixed $next): Response
+    {
+        $pipeline = array_reverse($middlewares);
+
+        // $next is a closure that sequentially executes another closure for each middleware in the $middlewares array.
+        // Running as many times as the array's length.
+        foreach ($pipeline as $middleware) {
+            $next = fn () => app()->call([$middleware, 'handle'], [$next]);
         }
 
-        return new Response(content: $response);
+        // Visual representation:
+        // $next = fn () => app()->call([ThirdMiddleware::class, 'handle'], [
+        //     fn () => app()->call([SecondMiddleware::class, 'handle'], [
+        //         fn () => app()->call([FirstMiddleware::class, 'handle'], [$route->run()])
+        //     ])
+        // ]);
+
+        return $next($request);
     }
 
     public function createRoute(string $method, string $uri, mixed $action): Route
@@ -43,20 +62,22 @@ class Router
         return new Route($method, $uri, $action);
     }
 
-    public function addRoute(string $method, string $uri, mixed $action): void
+    public function addRoute(string $method, string $uri, mixed $action): Route
     {
         $uri = '/' . trim($uri, '/');
-        $this->routes[] = $this->createRoute($method, $uri, $action);
+        $route = $this->createRoute($method, $uri, $action);
+        $this->routes[] = $route;
+        return $route;
     }
 
-    public function get(string $route, mixed $callback): void
+    public function get(string $route, mixed $callback): Route
     {
-        $this->addRoute('GET', $route, $callback);
+        return $this->addRoute('GET', $route, $callback);
     }
 
-    public function post(string $route, mixed $callback): void
+    public function post(string $route, mixed $callback): Route
     {
-        $this->addRoute('POST', $route, $callback);
+        return $this->addRoute('POST', $route, $callback);
     }
 
     public function getRoutes(): array

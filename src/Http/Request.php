@@ -48,6 +48,11 @@ class Request
         return $request;
     }
 
+    public function setHeader(string $key, string $value)
+    {
+        $this->headers[$key] = $value;
+    }
+
     public function cookie(string $key)
     {
         return $this->cookies[$key];

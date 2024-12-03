@@ -6,15 +6,17 @@ use Adepto\Http\Request;
 
 class Route
 {
+    protected array $middlewares = [];
+
     public function __construct(
-        public string $method,
-        public string $uri,
-        public mixed $action
+        protected string $method,
+        protected string $uri,
+        protected mixed $action
     ) {
         //
     }
 
-    public function hasParameter(): bool
+    protected function hasParameter(): bool
     {
         return preg_match("/\{([a-zA-Z]+)\}/", $this->uri);
     }
@@ -45,7 +47,7 @@ class Route
         return $this->uri === $uri;
     }
 
-    public function getUriParameters(Request $request): array
+    protected function getUriParameters(Request $request): array
     {
         $uri = $request->path();
         $uri = '/' . trim($uri, '/');
@@ -61,14 +63,18 @@ class Route
         return $params;
     }
 
-    public function run(Request $request): mixed
+    public function run(Request $request): Response
     {
         if ($this->hasParameter()) {
             $params = $this->getUriParameters($request);
         }
 
         if ($this->action instanceof \Closure) {
-            return app()->call($this->action, $params ?? []);
+            $response = app()->call($this->action, $params ?? []);
+            if (!($response instanceof Response)) {
+                $response = new Response(content: $response);
+            }
+            return $response;
         }
 
         if (is_array($this->action)) {
@@ -76,12 +82,20 @@ class Route
         } else {
             $callable = explode("@", $this->action);
         }
+
         $this->validateActionArray($callable);
         $this->validateController($callable[0], $callable[1]);
-        return app()->call($callable, $params ?? []);
+
+        $response = app()->call($callable, $params ?? []);
+
+        if (!($response instanceof Response)) {
+            $response = new Response(content: $response);
+        }
+
+        return $response;
     }
 
-    public function validateController(string $class, string $method): void
+    protected function validateController(string $class, string $method): void
     {
         if (!class_exists($class)) {
             throw new \Error("Target class [{$class}] does not exist.");
@@ -91,10 +105,28 @@ class Route
         }
     }
 
-    public function validateActionArray(array $array): void
+    protected function validateActionArray(array $array): void
     {
         if (!isset($array[0]) || !isset($array[1])) {
             throw new \Error("Route action is not supported.");
         }
+    }
+
+    public function middlewares(): array
+    {
+        return $this->middlewares;
+    }
+
+    public function middleware(array|string $middleware): Route
+    {
+        if (is_array($middleware)) {
+            foreach ($middleware as $m) {
+                $this->middlewares[] = $m;
+            }
+            return $this;
+        }
+
+        $this->middlewares[] = $middleware;
+        return $this;
     }
 }
