@@ -85,8 +85,8 @@ class Application
     }
 
     /**
-     * Get the concrete type from the bindings or 
-     * instantiate a concrete instance
+     * Get the concrete type from the bindings or instantiate 
+     * a concrete instance with dependencies
      */
     protected function resolve(string $abstract, array $params = [])
     {
@@ -97,6 +97,11 @@ class Application
         if (!is_string($concrete)) {
             return $concrete;
         }
+
+        // TODO: resolve Closures?
+        //if ($concrete instanceof Closure) {
+        //    return $this->call($concrete);
+        //}
 
         return $this->build($concrete);
     }
@@ -129,33 +134,30 @@ class Application
     /**
      * Instantiate a instance and resolve dependencies
      */
-    protected function build(Closure | string $concrete): mixed
+    protected function build(string $concrete): mixed
     {
-        if (is_string($concrete)) {
-            if (!class_exists($concrete)) {
-                return $concrete;
-            }
-
-            $reflector = new ReflectionClass($concrete);
-            if (!$reflector->isInstantiable()) {
-                throw new \Error("Class [{$concrete}] is not instantiable.");
-            }
-
-            $constructor  = $reflector->getConstructor();
-            if (!$constructor) {
-                return new $concrete;
-            }
-
-            $params = [];
-
-            foreach ($constructor->getParameters() as $param) {
-                array_push($params, $this->make($param->getName()));
-            }
-
-            return $reflector->newInstance(...$params);
+        if (!class_exists($concrete)) {
+            return $concrete;
         }
 
-        return $concrete;
+        $reflector = new ReflectionClass($concrete);
+        if (!$reflector->isInstantiable()) {
+            throw new \Error("Class [{$concrete}] is not instantiable.");
+        }
+
+        $constructor  = $reflector->getConstructor();
+        if (!$constructor) {
+            return new $concrete;
+        }
+
+        // resolve constructor dependencies
+        $params = [];
+
+        foreach ($constructor->getParameters() as $param) {
+            array_push($params, $this->make($param->getName()));
+        }
+
+        return $reflector->newInstance(...$params);
     }
 
     protected function resolveCallableDependencies(ReflectionFunctionAbstract $reflector): mixed
@@ -164,6 +166,10 @@ class Application
         foreach ($reflector->getParameters() as $param) {
             $param = $this->make($param->getName());
             if (is_scalar($param)) {
+                // get a arg called params and get the first and push it
+                // so if (Request $request, $id)
+                // now push the value from Id to the array
+                // that will make this work ($id, Request $request)
                 continue;
             }
             array_push($params, $param);
