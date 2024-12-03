@@ -1,6 +1,6 @@
 <?php
 
-namespace Adepto;
+namespace Adepto\Http;
 
 use Adepto\Http\Request;
 

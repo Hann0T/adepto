@@ -8,7 +8,7 @@ use Adepto\Foundation\Application;
 class RegisterFacades
 {
     private array $facades = [
-        \Adepto\Facades\Router::class => \Adepto\Router::class,
+        \Adepto\Facades\Router::class => \Adepto\Http\Router::class,
         \Adepto\Facades\View::class => \Adepto\View::class,
     ];
 
