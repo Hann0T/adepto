@@ -57,3 +57,10 @@ if (!function_exists('redirect')) {
         return (new \Adepto\Http\Response)->redirect($path, $status, $headers);
     }
 }
+
+if (!function_exists('abort')) {
+    function abort(int $status = 400, string $message = '', array $headers = []): \Adepto\Http\Response
+    {
+        return (new \Adepto\Http\Response)->abort($status, $message, $headers);
+    }
+}

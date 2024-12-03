@@ -222,6 +222,11 @@ class Response
         return $this->setStatusCode($status)->setHeaders(array_merge($this->headers, $headers, ['Location' => $path]));
     }
 
+    public function abort(int $status = 400, string $message = '', array $headers = []): Response
+    {
+        return $this->setContent($message)->setStatusCode($status)->setHeaders(array_merge($this->headers, $headers));
+    }
+
     public function json(array $data = [], int $status = 200, array $headers = []): Response
     {
         return $this
