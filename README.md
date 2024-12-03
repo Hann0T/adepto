@@ -2,7 +2,7 @@
 
 - [X] HTTP Request Handling
 - [X] Controllers
-- [ ] Middleware
+- [X] Middleware
 - [X] Views and Templating
 - [ ] Database Integration
 - [ ] Model Layer
@@ -12,6 +12,6 @@
 - [ ] Session and Cookie Management
 - [ ] Logging and Debugging
 - [ ] CLI Tools
-- [ ] Service Container (some %)
-- [ ] Service Provider (some %)
+- [X] Service Container
+- [X] Service Provider
 - [ ] Testing
