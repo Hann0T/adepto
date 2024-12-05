@@ -9,6 +9,7 @@ use ReflectionClass;
 use ReflectionFunction;
 use ReflectionFunctionAbstract;
 use ReflectionMethod;
+use ReflectionNamedType;
 
 class Application
 {
@@ -16,6 +17,10 @@ class Application
 
     protected array $bindings = [];
     protected array $instances = [];
+
+    protected array $aliases = [
+        'request' => [\Adepto\Http\Request::class]
+    ];
 
     protected array $boostrapers = [
         \Adepto\Foundation\Boostrap\RegisterFacades::class,
@@ -80,7 +85,7 @@ class Application
             $reflector = new ReflectionMethod($class, $method);
         }
 
-        $dependencies = $this->resolveCallableDependencies($reflector);
+        $dependencies = $this->resolveDependencies($reflector, $params);
         return call_user_func($callback, ...$dependencies, ...$params);
     }
 
@@ -94,16 +99,12 @@ class Application
         $concrete = $this->getConcreteFromBindings($abstract);
 
         // If the concrete is no longer a string then we return the instance.
+        // TODO: more validations
         if (!is_string($concrete)) {
             return $concrete;
         }
 
-        // TODO: resolve Closures?
-        //if ($concrete instanceof Closure) {
-        //    return $this->call($concrete);
-        //}
-
-        return $this->build($concrete);
+        return $this->build($concrete, $params);
     }
 
     /**
@@ -112,11 +113,23 @@ class Application
      */
     protected function getConcreteFromBindings(string $abstract): mixed
     {
+        // If the $abstract is not aliased nor binded
+        if (!isset($this->aliases[$abstract]) && !isset($this->bindings[$abstract])) {
+            $filtered = array_filter($this->aliases, function ($values, $alias) use ($abstract) {
+                if (in_array($abstract, $values)) {
+                    return $alias;
+                }
+            }, ARRAY_FILTER_USE_BOTH);
+
+            if (count($filtered) > 0) {
+                $abstract = array_pop(array_keys($filtered));
+            }
+        }
+
         if (!isset($this->bindings[$abstract])) {
             return $abstract;
         }
 
-        // call $this->make() for dependencies
         $isSingleton = $this->bindings[$abstract]['singleton'];
 
         if (!isset($this->instances[$abstract])) {
@@ -134,7 +147,7 @@ class Application
     /**
      * Instantiate a instance and resolve dependencies
      */
-    protected function build(string $concrete): mixed
+    protected function build(string $concrete, array $params = []): mixed
     {
         if (!class_exists($concrete)) {
             return $concrete;
@@ -150,32 +163,44 @@ class Application
             return new $concrete;
         }
 
-        // resolve constructor dependencies
-        $params = [];
-
-        foreach ($constructor->getParameters() as $param) {
-            array_push($params, $this->make($param->getName()));
-        }
-
-        return $reflector->newInstance(...$params);
+        $resolvedParams = $this->resolveDependencies($constructor, $params);
+        return $reflector->newInstance(...$resolvedParams);
     }
 
-    protected function resolveCallableDependencies(ReflectionFunctionAbstract $reflector): mixed
+    protected function resolveDependencies(ReflectionFunctionAbstract $reflector, array $params = []): mixed
     {
-        $params = [];
+        $resolvedParams = [];
         foreach ($reflector->getParameters() as $param) {
-            $param = $this->make($param->getName());
-            if (is_scalar($param)) {
-                // get a arg called params and get the first and push it
-                // so if (Request $request, $id)
-                // now push the value from Id to the array
-                // that will make this work ($id, Request $request)
+            $type = $param->getType();
+
+            // if it does not have a type defined
+            // we push from the params
+            if (!$type instanceof ReflectionNamedType) {
+                array_push($resolvedParams, array_shift($params));
                 continue;
             }
-            array_push($params, $param);
+
+            if (!$type->isBuiltin()) {
+                // get the name of the type and resolve
+                // it should be a class name
+                array_push($resolvedParams, $this->make($type->getName()));
+                continue;
+            }
+
+            if ($type->allowsNull() && count($params) <= 0) {
+                array_push($resolvedParams, null);
+                continue;
+            }
+
+            if ($param->isOptional() && count($params) <= 0) {
+                array_push($resolvedParams, $param->getDefaultValue());
+                continue;
+            }
+
+            array_push($resolvedParams, array_shift($params));
         }
 
-        return $params;
+        return $resolvedParams;
     }
 
     public function getBindings(): array

@@ -43,3 +43,9 @@ function something()
 {
     // ..
 }
+
+function test_dd($arg)
+{
+    fwrite(STDERR, print_r($arg, TRUE));
+    die();
+}
