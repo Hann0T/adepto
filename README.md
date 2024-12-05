@@ -13,5 +13,5 @@
 - [ ] Logging and Debugging
 - [ ] CLI Tools
 - [X] Service Container
-- [X] Service Provider
-- [ ] Testing
+- [ ] Service Provider (some %)
+- [X] Testing
