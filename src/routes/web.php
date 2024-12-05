@@ -29,6 +29,6 @@ Router::get('/user/{id}/posts', function ($id) {
     return "User with ID: {$id} and with Posts";
 });
 
-Router::get('/user/{id}/posts/{id}', function ($userId, $postId) {
-    return "User with ID: {$userId} and with Post with ID: {$postId}";
+Router::get('/user/{id}/posts/{id}', function ($userId, Request $request, $postId) {
+    return "User with ID: {$userId} and with Post with ID: {$postId} {$request->method()}";
 });

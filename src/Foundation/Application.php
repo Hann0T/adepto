@@ -86,7 +86,7 @@ class Application
         }
 
         $dependencies = $this->resolveDependencies($reflector, $params);
-        return call_user_func($callback, ...$dependencies, ...$params);
+        return call_user_func($callback, ...$dependencies);
     }
 
     /**
@@ -113,7 +113,7 @@ class Application
      */
     protected function getConcreteFromBindings(string $abstract): mixed
     {
-        // If the $abstract is not aliased nor binded
+        // If the $abstract is not a key alias and is not binded
         if (!isset($this->aliases[$abstract]) && !isset($this->bindings[$abstract])) {
             $filtered = array_filter($this->aliases, function ($values, $alias) use ($abstract) {
                 if (in_array($abstract, $values)) {
@@ -183,8 +183,18 @@ class Application
             if (!$type->isBuiltin()) {
                 // get the name of the type and resolve
                 // it should be a class name
-                array_push($resolvedParams, $this->make($type->getName()));
-                continue;
+                if (class_exists($type->getName()) && (new ReflectionClass($type->getName()))->isInstantiable()) {
+                    array_push($resolvedParams, $this->make($type->getName()));
+                    continue;
+                }
+
+                // TODO: Should test this, with middlewares
+                // should test a Closure as parameter/dependency
+                // Closure is not builtin
+                if ($type->getName() == Closure::class) {
+                    array_push($resolvedParams, array_shift($params));
+                    continue;
+                }
             }
 
             if ($type->allowsNull() && count($params) <= 0) {
