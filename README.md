@@ -1,17 +1,18 @@
-# STEPS
+# STEPS (in order)
 
 - [X] HTTP Request Handling
 - [X] Controllers
 - [X] Middleware
 - [X] Views and Templating
+- [X] Service Container
+- [X] Service Provider
+- [X] Testing
 - [ ] Database Integration
+- [ ] Database Migrations
 - [ ] Model Layer
 - [ ] ORM
-- [ ] Validation
-- [ ] Configuration Managment
 - [ ] Session and Cookie Management
+- [ ] Configuration Managment
 - [ ] Logging and Debugging
+- [ ] Validation
 - [ ] CLI Tools
-- [X] Service Container
-- [ ] Service Provider (some %)
-- [X] Testing
