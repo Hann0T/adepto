@@ -2,6 +2,7 @@
 
 namespace Adepto\Http;
 
+use Adepto\Http\Exceptions\RouteNotFoundException;
 use Adepto\Http\Request;
 use Adepto\Http\Response;
 
@@ -21,7 +22,7 @@ class Router
         $route = array_values($filtered)[0];
 
         if (!$route) {
-            throw new \Error("404 Route does not exists.");
+            throw new RouteNotFoundException("404 Route does not exists.");
         }
 
         return $route;

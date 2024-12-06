@@ -2,14 +2,14 @@
 
 use Adepto\Facades\Router;
 use Adepto\Foundation\Application;
+use Adepto\Http\Exceptions\RouteNotFoundException;
 use Adepto\Http\Request;
 
 function bootstrapApp()
 {
+    $app = Application::getInstance();
+    $app->bootstrap();
     try {
-        $app = Application::getInstance();
-        $app->bootstrap();
-
         $request = Request::capture();
         $app->handleRequest($request);
 
@@ -19,8 +19,15 @@ function bootstrapApp()
 
         $response = Router::resolve($request)->prepare();
         $app->terminate($response);
+    } catch (RouteNotFoundException $e) {
+        $response = view('404', [
+            'message' => $e->getMessage()
+        ])->setStatusCode(404);
+        $app->terminate($response);
     } catch (\Throwable $e) {
-        dd($e);
-        echo 505;
+        $response = view('500', [
+            'message' => $e->getMessage()
+        ])->setStatusCode(500);
+        $app->terminate($response);
     }
 }
