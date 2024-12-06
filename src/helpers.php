@@ -2,6 +2,7 @@
 
 use Adepto\Facades\View;
 use Adepto\Foundation\Application;
+use Adepto\Http\Response;
 
 if (!function_exists('dd')) {
     function dd(...$args)
@@ -14,7 +15,7 @@ if (!function_exists('dd')) {
 }
 
 if (!function_exists('view')) {
-    function view(string $view, array $params = []): string
+    function view(string $view, array $params = []): Response
     {
         return View::render($view, $params);
     }

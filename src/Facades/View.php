@@ -3,7 +3,7 @@
 namespace Adepto\Facades;
 
 /**
- * @method static string render(string $view, array $params = [])
+ * @method static \Adepto\Http\Response render(string $view, array $params = [])
  */
 class View extends Facade
 {

@@ -2,11 +2,13 @@
 
 namespace Adepto;
 
+use Adepto\Http\Response;
+
 class View
 {
     protected string $directory = __DIR__;
 
-    public function render(string $view, array $params = []): string
+    public function render(string $view, array $params = []): Response
     {
         $filePath = "{$this->directory}/views/{$view}.php";
 
@@ -46,7 +48,7 @@ class View
                 return 'undefined';
             }, $rawView);
 
-            return $rawView;
+            return new Response($rawView, 200);
         } else {
             throw new \Error('View does not exists.');
         }
