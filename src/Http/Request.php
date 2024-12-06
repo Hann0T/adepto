@@ -27,12 +27,12 @@ class Request
             'accept-language' => $_SERVER['HTTP_ACCEPT_LANGUAGE'],
             'accept-encoding' => $_SERVER['HTTP_ACCEPT_ENCODING'],
             'connection' => $_SERVER['HTTP_CONNECTION'],
-            'cookie' => $_SERVER['HTTP_COOKIE'],
+            'cookie' => $_SERVER['HTTP_COOKIE'] ?? '',
             'upgrade-insecure-requests' => $_SERVER['HTTP_UPGRADE_INSECURE_REQUESTS'],
             'sec-fetch-dest' => $_SERVER['HTTP_SEC_FETCH_DEST'],
             'sec-fetch-mode' => $_SERVER['HTTP_SEC_FETCH_MODE'],
             'sec-fetch-site' => $_SERVER['HTTP_SEC_FETCH_SITE'],
-            'priority' => $_SERVER['HTTP_PRIORITY'],
+            'priority' => $_SERVER['HTTP_PRIORITY'] ?? '',
         ];
 
         $request =  new Request(

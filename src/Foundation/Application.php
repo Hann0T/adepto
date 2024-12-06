@@ -122,7 +122,8 @@ class Application
             }, ARRAY_FILTER_USE_BOTH);
 
             if (count($filtered) > 0) {
-                $abstract = array_pop(array_keys($filtered));
+                $keys = array_keys($filtered);
+                $abstract = array_pop($keys);
             }
         }
 
