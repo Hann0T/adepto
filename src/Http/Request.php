@@ -55,7 +55,7 @@ class Request
 
     public function cookie(string $key)
     {
-        return $this->cookies[$key];
+        return $this->cookies[$key] ?? '';
     }
 
     public function query(string $key)
@@ -70,12 +70,12 @@ class Request
 
     public function header(string $key)
     {
-        return $this->headers[$key];
+        return $this->headers[$key] ?? '';
     }
 
     public function root()
     {
-        return $this->headers['host'];
+        return $this->headers['host'] ?? '';
     }
 
     public function getUri()
