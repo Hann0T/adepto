@@ -1,24 +1,21 @@
 <?php
 
-namespace Adepto\Foundation\Boostrap;
+namespace Adepto\Support;
 
 use Adepto\Foundation\Application;
 
-// change this to a service provider or something like that
-class RegisterFacades
+class FacadeServiceProvider implements ServiceProvider
 {
-    private array $facades = [
+    private array $singletons = [
         \Adepto\Facades\Router::class => \Adepto\Http\Router::class,
         \Adepto\Facades\View::class => \Adepto\View::class,
     ];
 
-    public function boostrap(Application $app)
+    public function boot(Application $app): void
     {
-        foreach ($this->facades as $facade => $concrete) {
+        foreach ($this->singletons as $facade => $concrete) {
             $facade::setApplication($app);
 
-            // not sure if all facades should be singletons
-            // not even sure if Router should be singleton
             $app->singleton($facade::getFacadeAccessor(), function () use ($concrete) {
                 return new $concrete;
             });

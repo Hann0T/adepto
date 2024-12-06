@@ -4,6 +4,7 @@ namespace Adepto\Foundation;
 
 use Adepto\Http\Request;
 use Adepto\Http\Response;
+use Adepto\Support\ServiceProvider;
 use Closure;
 use ReflectionClass;
 use ReflectionFunction;
@@ -22,8 +23,8 @@ class Application
         'request' => [\Adepto\Http\Request::class]
     ];
 
-    protected array $boostrapers = [
-        \Adepto\Foundation\Boostrap\RegisterFacades::class,
+    protected array $providers = [
+        \Adepto\Support\FacadeServiceProvider::class,
     ];
 
     public static function getInstance(): Application
@@ -41,10 +42,11 @@ class Application
     // the same if you call app(\Illuminate\Contracts\Routing\UrlGenerator)
     public function bootstrap()
     {
-        // add service providers
-        foreach ($this->boostrapers as $boostraper) {
-            $instance = new $boostraper;
-            $instance->boostrap($this);
+        foreach ($this->providers as $provider) {
+            $instance = new $provider;
+            if ($instance instanceof ServiceProvider) {
+                $instance->boot($this);
+            }
         }
     }
 
