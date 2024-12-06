@@ -21,7 +21,7 @@ if (!function_exists('view')) {
 }
 
 if (!function_exists('app')) {
-    function app(string $abstract = null, array $params = [])
+    function app(string $abstract = '', array $params = [])
     {
         if ($abstract) {
             return Application::getInstance()->make($abstract, $params);
