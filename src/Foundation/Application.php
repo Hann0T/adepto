@@ -4,7 +4,6 @@ namespace Adepto\Foundation;
 
 use Adepto\Http\Request;
 use Adepto\Http\Response;
-use Adepto\Support\ServiceProvider;
 use Closure;
 use ReflectionClass;
 use ReflectionFunction;
@@ -23,10 +22,6 @@ class Application
         'request' => [\Adepto\Http\Request::class]
     ];
 
-    protected array $providers = [
-        \Adepto\Support\FacadeServiceProvider::class,
-    ];
-
     public static function getInstance(): Application
     {
         return static::$instance ??= new static;
@@ -40,19 +35,14 @@ class Application
     // if you call something like app('url') laravel will find in the bindings and resolve to the concrete, the binding is with 'url'
     // if you call app(\Illuminate\Routing\UrlGenerator) laravel will find first the alias which is 'url' and then resolve the binding
     // the same if you call app(\Illuminate\Contracts\Routing\UrlGenerator)
-    public function bootstrap()
-    {
-        foreach ($this->providers as $provider) {
-            $instance = new $provider;
-            if ($instance instanceof ServiceProvider) {
-                $instance->boot($this);
-            }
-        }
-    }
 
-    public function handleRequest(Request $request)
+    /**
+     * Begin configuring a new application instance.
+     */
+    public static function configure(string $basePath)
     {
-        $this->bind('request', fn () => $request);
+        $app = Application::getInstance();
+        return new ApplicationBuilder(app: $app, basePath: $basePath);
     }
 
     public function singleton(string $abstract, Closure $concrete)
@@ -216,9 +206,9 @@ class Application
         return $resolvedParams;
     }
 
-    public function getBindings(): array
+    public function handleRequest(Request $request)
     {
-        return $this->bindings;
+        $this->bind('request', fn () => $request);
     }
 
     public function terminate(Response $response)

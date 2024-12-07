@@ -7,15 +7,15 @@ use Adepto\Http\Request;
 
 function bootstrapApp()
 {
-    $app = Application::getInstance();
-    $app->bootstrap();
+    $app = Application::configure(basePath: dirname(__DIR__))
+        ->withRouting(
+            web: dirname(__DIR__) . '/../routes/web.php'
+        )
+        ->create();
+
     try {
         $request = Request::capture();
         $app->handleRequest($request);
-
-        // other way to load the web.php?
-        // https://github.com/laravel/framework/blob/11.x/src/Illuminate/Foundation/Configuration/ApplicationBuilder.php#L150
-        include_once dirname(__DIR__) . '/../routes/web.php';
 
         $response = Router::resolve($request)->prepare();
         $app->terminate($response);
