@@ -15,7 +15,7 @@ function bootstrapApp()
 
         // other way to load the web.php?
         // https://github.com/laravel/framework/blob/11.x/src/Illuminate/Foundation/Configuration/ApplicationBuilder.php#L150
-        include_once __DIR__ . '/../routes/web.php';
+        include_once dirname(__DIR__) . '/../routes/web.php';
 
         $response = Router::resolve($request)->prepare();
         $app->terminate($response);

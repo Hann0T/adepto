@@ -6,7 +6,12 @@ use Adepto\Http\Response;
 
 class View
 {
-    protected string $directory = __DIR__;
+    protected string $directory;
+
+    public function __construct()
+    {
+        $this->directory = dirname(__DIR__);
+    }
 
     public function render(string $view, array $params = []): Response
     {
