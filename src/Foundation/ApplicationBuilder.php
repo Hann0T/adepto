@@ -37,12 +37,18 @@ class ApplicationBuilder
     {
         // First we need to register some Facades
         $this->boostrapFacades();
+        $this->boostrapConfig();
         $this->bootstrapProviders();
     }
 
     protected function boostrapFacades()
     {
         (new FacadeServiceProvider())->boot($this->app);
+    }
+
+    protected function boostrapConfig()
+    {
+        (new ConfigurationLoader)->boot($this->app);
     }
 
     protected function bootstrapProviders()

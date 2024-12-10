@@ -66,3 +66,15 @@ if (!function_exists('abort')) {
         return (new \Adepto\Http\Response)->abort($status, $message, $headers);
     }
 }
+
+if (!function_exists('config')) {
+    function config($key = '', $default = ''): \Adepto\Support\Config\Repository
+    {
+        $config = Application::getInstance()->make('config');
+        if ($key) {
+            return $config->get($key, $default);
+        }
+
+        return $config;
+    }
+}
