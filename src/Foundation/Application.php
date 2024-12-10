@@ -14,6 +14,7 @@ use ReflectionNamedType;
 class Application
 {
     protected static $instance;
+    protected string $basePath;
 
     protected array $bindings = [];
     protected array $instances = [];
@@ -42,6 +43,7 @@ class Application
     public static function configure(string $basePath)
     {
         $app = Application::getInstance();
+        $app->basePath = $basePath;
         return new ApplicationBuilder(app: $app, basePath: $basePath);
     }
 
@@ -215,5 +217,10 @@ class Application
     {
         print($response->getContent());
         exit();
+    }
+
+    public function path()
+    {
+        return $this->basePath;
     }
 }
