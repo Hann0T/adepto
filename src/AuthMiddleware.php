@@ -10,6 +10,7 @@ class AuthMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
+        // TODO: real validation
         if ($request->cookie('auth') !== 'true') {
             return abort(401, 'unauthorized');
         }
