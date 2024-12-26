@@ -7,7 +7,7 @@
 - [X] Middleware
 - [X] Service Provider
 - [X] Testing
-- [ ] Configuration Managment
+- [X] Configuration Managment
 - [ ] Database Integration
 - [ ] Database Migrations
 - [ ] Model Layer
