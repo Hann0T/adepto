@@ -2,6 +2,7 @@
 
 namespace Adepto\Http;
 
+use Adepto\Bus\Stack;
 use Adepto\Http\Exceptions\RouteNotFoundException;
 use Adepto\Http\Request;
 use Adepto\Http\Response;
@@ -38,24 +39,22 @@ class Router
         return $response;
     }
 
-    protected function runMiddlewares(Request $request, array $middlewares, mixed $next): Response
+    protected function runMiddlewares(Request $request, Stack $middlewares, mixed $next): Response
     {
-        $pipeline = array_reverse($middlewares);
-
-        // $next is a closure that sequentially executes another closure for each middleware in the $middlewares array.
-        // Running as many times as the array's length.
-        foreach ($pipeline as $middleware) {
-            $next = fn () => app()->call([$middleware, 'handle'], [$next]);
+        if ($middlewares->len <= 0) {
+            return $next($request);
         }
 
-        // Visual representation:
-        // $next = fn () => app()->call([ThirdMiddleware::class, 'handle'], [
-        //     fn () => app()->call([SecondMiddleware::class, 'handle'], [
-        //         fn () => app()->call([FirstMiddleware::class, 'handle'], [$route->run()])
-        //     ])
-        // ]);
+        //$request->setHeader('redirect', 'true');
+        $pipeline = $next;
+        while ($middlewares->len > 0) {
+            $middleware = app()->make($middlewares->pop());
+            $pipeline = function ($request) use ($middleware, $pipeline) {
+                return $middleware->handle($request, $pipeline);
+            };
+        }
 
-        return $next($request);
+        return $pipeline($request);
     }
 
     public function createRoute(string $method, string $uri, mixed $action): Route

@@ -2,18 +2,19 @@
 
 namespace Adepto\Http;
 
+use Adepto\Bus\Stack;
 use Adepto\Http\Request;
 
 class Route
 {
-    protected array $middlewares = [];
+    protected ?Stack $middlewares = null;
 
     public function __construct(
         protected string $method,
         protected string $uri,
         protected mixed $action
     ) {
-        //
+        $this->middlewares = new Stack();
     }
 
     protected function hasParameter(): bool
@@ -112,21 +113,22 @@ class Route
         }
     }
 
-    public function middlewares(): array
+    public function middlewares(): Stack
     {
         return $this->middlewares;
     }
 
     public function middleware(array|string $middleware): Route
     {
-        if (is_array($middleware)) {
-            foreach ($middleware as $m) {
-                $this->middlewares[] = $m;
-            }
+        if (!is_array($middleware)) {
+            $this->middlewares->push($middleware);
             return $this;
         }
 
-        $this->middlewares[] = $middleware;
+        foreach ($middleware as $m) {
+            $this->middlewares->push($m);
+        }
+
         return $this;
     }
 }
