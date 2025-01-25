@@ -22,32 +22,6 @@ class Route
         return preg_match("/\{([a-zA-Z]+)\}/", $this->uri);
     }
 
-    public function matches(Request $request): bool
-    {
-        $method = $request->method();
-        $uri = $request->path();
-
-        $uri = '/' . trim($uri, '/');
-        $uri = preg_replace('#/+#', '/', $uri);
-
-        if ($this->method !== $method) {
-            return false;
-        }
-
-        if ($this->hasParameter()) {
-            // We make the pattern based on the registered uri
-            // we are replacing the parameters in the uri with a regex
-            $pattern = preg_replace("/\{([a-zA-Z]+)\}/", "[a-zA-Z0-9]+", $this->uri);
-            $pattern = '#^' . $pattern . '$#';
-
-            // We compare the pattern with the request uri
-            $matches = preg_match($pattern, $uri);
-            return $matches;
-        }
-
-        return $this->uri === $uri;
-    }
-
     protected function getUriParameters(Request $request): array
     {
         $uri = $request->path();

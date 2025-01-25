@@ -7,20 +7,96 @@ use Adepto\Http\Exceptions\RouteNotFoundException;
 use Adepto\Http\Request;
 use Adepto\Http\Response;
 
+class TreeNode
+{
+    public mixed $value;
+    public ?Route $route = null;
+    public array $children = [];
+
+    public function __construct(mixed $value, Route $route = null)
+    {
+        $this->value = $value;
+        $this->route = $route;
+    }
+
+    public function insert(string $uri, Route $route)
+    {
+        $uri = trim($uri, '/');
+        $uri = explode('/', $uri);
+        if (empty($uri)) {
+            return;
+        }
+
+        if ($this->value == $uri[0]) {
+            return;
+        }
+
+        $curr = $this;
+        foreach ($uri as $segment) {
+            if (count($curr->children) <= 0) {
+                $node = new TreeNode($segment, $route);
+                $curr->children[$segment] = $node;
+                $curr = $node;
+                continue;
+            }
+
+            if (!isset($curr->children[$segment])) {
+                $node = new TreeNode($segment, $route);
+                $curr->children[$segment] = $node;
+                $curr = $node;
+                continue;
+            }
+
+            $curr = $curr->children[$segment];
+        }
+    }
+
+    public function searchRoute(string $path): ?Route
+    {
+        $path = trim($path, '/');
+        $path = explode('/', $path);
+        if (empty($path)) {
+            return null;
+        }
+
+        $curr = $this;
+        foreach ($path as $segment) {
+            $node = $curr->children[$segment];
+            if ($node) {
+                $curr = $node;
+                continue;
+            }
+
+            $filtered = array_filter(
+                $curr->children,
+                fn ($node) => $node->value[0] == '{' && $node->value[strlen($node->value) - 1] == '}'
+            );
+            if (empty($filtered)) {
+                return null;
+            }
+
+            $curr = array_values($filtered)[0];
+        }
+
+        return $curr->route;
+    }
+}
+
 class Router
 {
-    private array $routes = [];
+    private ?TreeNode $routes = null;
+
+    public function __construct()
+    {
+        $this->routes = new TreeNode('root');
+    }
 
     /**
      * Find the first route matching a given request.
      */
     public function matchRoute(Request $request): Route
     {
-        $filtered = array_filter($this->routes, function ($route) use ($request) {
-            return $route->matches($request);
-        });
-
-        $route = array_values($filtered)[0];
+        $route = $this->routes->searchRoute($request->path());
 
         if (!$route) {
             throw new RouteNotFoundException("404 Route does not exists.");
@@ -45,7 +121,6 @@ class Router
             return $next($request);
         }
 
-        //$request->setHeader('redirect', 'true');
         $pipeline = $next;
         while ($middlewares->len > 0) {
             $middleware = app()->make($middlewares->pop());
@@ -66,7 +141,11 @@ class Router
     {
         $uri = '/' . trim($uri, '/');
         $route = $this->createRoute($method, $uri, $action);
-        $this->routes[] = $route;
+        if ($uri == '/') {
+            $this->routes->route = $route;
+        } else {
+            $this->routes->insert($uri, $route);
+        }
         return $route;
     }
 
@@ -78,10 +157,5 @@ class Router
     public function post(string $route, mixed $callback): Route
     {
         return $this->addRoute('POST', $route, $callback);
-    }
-
-    public function getRoutes(): array
-    {
-        return $this->routes;
     }
 }
