@@ -68,7 +68,7 @@ if (!function_exists('abort')) {
 }
 
 if (!function_exists('config')) {
-    function config($key = '', $default = ''): \Adepto\Support\Config\Repository
+    function config($key = '', $default = ''): \Adepto\Support\Config\Repository|array
     {
         $config = Application::getInstance()->make('config');
         if ($key) {
