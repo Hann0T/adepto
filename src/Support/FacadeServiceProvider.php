@@ -3,6 +3,7 @@
 namespace Adepto\Support;
 
 use Adepto\Bus\Queue;
+use Adepto\Database;
 use Adepto\Foundation\Application;
 
 class FacadeServiceProvider implements ServiceProvider
@@ -14,8 +15,14 @@ class FacadeServiceProvider implements ServiceProvider
 
     public function __construct()
     {
+        // temp
         $bus = new \Adepto\Bus\Bus(new Queue);
         $this->singletons[\Adepto\Facades\Bus::class] = $bus;
+
+        $config = config('database');
+        $connection = new \PDO("{$config['driver']}:{$config['database']}");
+        $database = new Database($connection);
+        $this->singletons[\Adepto\Facades\DB::class] = $database;
     }
 
     public function boot(Application $app): void

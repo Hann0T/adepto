@@ -35,9 +35,8 @@ class ApplicationBuilder
 
     protected function bootstrap()
     {
-        // First we need to register some Facades
-        $this->boostrapFacades();
         $this->boostrapConfig();
+        $this->boostrapFacades();
         $this->bootstrapProviders();
     }
 

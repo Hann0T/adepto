@@ -1,5 +1,6 @@
 <?php
 
 return [
-    'db' => 'test'
+    'driver' => 'sqlite',
+    'database' => '/home/hann0t/Personal/PHP/adepto/database/adepto.sqlite',
 ];
